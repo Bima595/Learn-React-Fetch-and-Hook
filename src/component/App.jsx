@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
@@ -7,6 +8,7 @@ import { getUserLogged, getAccessToken } from "../utils/network-data";
 const App = () => {
   const [currentPage, setCurrentPage] = useState("login");
   const [userName, setUserName] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const handleLogout = () => {
     setCurrentPage('login');
@@ -24,9 +26,18 @@ const App = () => {
         } else {
           localStorage.removeItem('accessToken');
         }
+        setLoading(false); // Set loading to false after data is loaded
+      }).catch(() => {
+        setLoading(false); // Set loading to false if data loading fails
       });
+    } else {
+      setLoading(false); // Set loading to false if there is no access token
     }
   }, []); // Run only once when the component mounts
+
+  if (loading) {
+    return <div>Loading...</div>; // Display a loading indicator
+  }
 
   return (
     <div>
