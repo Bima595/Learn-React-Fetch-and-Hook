@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import HomePage from "../pages/HomePage";
+import DetailPage from "../pages/DetailPage";
 import { getUserLogged, getAccessToken } from "../utils/network-data";
 import { LanguageProvider } from "../contexts/LanguageContext";
 
@@ -10,6 +11,7 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState("login");
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [detailNoteId, setDetailNoteId] = useState(null);
 
   const handleLogout = () => {
     setCurrentPage("login");
@@ -28,18 +30,18 @@ const App = () => {
           } else {
             localStorage.removeItem("accessToken");
           }
-          setLoading(false); // Set loading to false after data is loaded
+          setLoading(false);
         })
         .catch(() => {
-          setLoading(false); // Set loading to false if data loading fails
+          setLoading(false);
         });
     } else {
-      setLoading(false); // Set loading to false if there is no access token
+      setLoading(false);
     }
-  }, []); // Run only once when the component mounts
+  }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Display a loading indicator
+    return <div>Loading...</div>;
   }
 
   return (
@@ -52,7 +54,20 @@ const App = () => {
           <RegisterPage setCurrentPage={setCurrentPage} />
         )}
         {currentPage === "homepage" && (
-          <HomePage userName={userName} handleLogout={handleLogout} />
+          <HomePage
+            userName={userName}
+            handleLogout={handleLogout}
+            setCurrentPage={setCurrentPage}
+            setDetailNoteId={setDetailNoteId}
+          />
+        )}
+        {detailNoteId && (
+          <DetailPage
+            userName={userName}
+            handleLogout={handleLogout}
+            noteId={detailNoteId}
+            setCurrentPage={setCurrentPage}
+          />
         )}
       </div>
     </LanguageProvider>

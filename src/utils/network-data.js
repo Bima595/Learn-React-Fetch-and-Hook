@@ -159,6 +159,20 @@ async function deleteNote(id) {
   return { error: false, data: responseJson.data };
 }
 
+export const getNoteById = async (id) => {
+    try {
+      const response = await fetch(`/api/notes/${id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch note");
+      }
+      const data = await response.json();
+      return { data };
+    } catch (error) {
+      return { error: error.message };
+    }
+  };
+
+
 export {
   getAccessToken,
   putAccessToken,

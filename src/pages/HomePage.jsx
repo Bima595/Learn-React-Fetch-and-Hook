@@ -11,7 +11,11 @@ import PropTypes from "prop-types";
 import { useLanguage } from "../contexts/LanguageContext";
 import "../style/Style.css";
 
-const HomePage = ({ handleLogout }) => {
+const HomePage = ({
+  handleLogout,
+  setCurrentPage,
+  setDetailNoteId,
+}) => {
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState({ title: "", body: "" });
   const { language, changeLanguage } = useLanguage();
@@ -99,6 +103,11 @@ const HomePage = ({ handleLogout }) => {
     }
   };
 
+  const handleTitleClick = (id) => {
+    setDetailNoteId(id);
+    setCurrentPage("detail");
+  };
+
   return (
     <div className="container">
       <button onClick={() => handleChangeLanguage("en")}>English</button>
@@ -141,7 +150,7 @@ const HomePage = ({ handleLogout }) => {
       {filteredNotes.length > 0 ? (
         <ul>
           {filteredNotes.map((note) => (
-            <li key={note.id}>
+            <li key={note.id} onClick={() => handleTitleClick(note.id)}>
               <h3>{note.title}</h3>
               <p>{note.body}</p>
               <p>
@@ -180,8 +189,11 @@ const HomePage = ({ handleLogout }) => {
 };
 
 HomePage.propTypes = {
-  userName: PropTypes.string.isRequired,
-  handleLogout: PropTypes.func.isRequired,
-};
+    userName: PropTypes.string.isRequired,
+    handleLogout: PropTypes.func.isRequired,
+    setCurrentPage: PropTypes.func.isRequired,
+    setDetailNoteId: PropTypes.func.isRequired,
+  };
+  
 
 export default HomePage;
