@@ -1,12 +1,12 @@
-// Di dalam file HomePage.jsx
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import {
-  getAllNotes,
-  addNote as addNoteUtil,
   archiveNote as archiveNoteUtil,
-  deleteNote as deleteNoteUtil,
+  getAllNotes,
 } from "../utils/local-data";
+
+import { deleteNote } from "../utils/network-data";
+import { addNote, getActiveNotes } from "../utils/network-data";
 import PropTypes from "prop-types";
 import { useLanguage } from "../contexts/LanguageContext";
 import "../style/Style.css";
@@ -15,11 +15,23 @@ const HomePage = ({ handleLogout }) => {
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState({ title: "", body: "" });
   const { language, changeLanguage } = useLanguage();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredNotes = notes.filter((note) =>
+    note.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getAllNotes();
-      setNotes(data);
+      const response = await getActiveNotes();
+      if (!response.error) {
+        const activeNotesFromApi = response.data.map((note) => ({
+          ...note,
+          fromApi: true,
+        }));
+        const activeNotesCombined = [...activeNotesFromApi, ...getAllNotes()];
+        setNotes(activeNotesCombined);
+      }
     };
     fetchData();
   }, []);
@@ -30,9 +42,9 @@ const HomePage = ({ handleLogout }) => {
 
   const handleAddNote = async () => {
     if (newNote.title && newNote.body) {
-      const response = await addNoteUtil(newNote);
+      const response = await addNote(newNote);
       if (!response.error) {
-        const updatedNotes = [...notes, response.data];
+        const updatedNotes = [...notes, { ...response.data, fromApi: true }];
         setNotes(updatedNotes);
         setNewNote({ title: "", body: "" });
         localStorage.setItem("notes", JSON.stringify(updatedNotes));
@@ -54,78 +66,115 @@ const HomePage = ({ handleLogout }) => {
   };
 
   const handleDeleteNote = async (id) => {
-    const response = await deleteNoteUtil(id);
-    if (!response.error) {
+    const note = notes.find((note) => note.id === id);
+    if (!note) {
+      console.error("Note not found");
+      return;
+    }
+
+    let deleteFromApiSuccess = true;
+    if (note.fromApi) {
+      const response = await deleteNote(id);
+      deleteFromApiSuccess = !response.error;
+      if (!deleteFromApiSuccess) {
+        console.error("Failed to delete note from API");
+      }
+    }
+
+    if (deleteFromApiSuccess) {
       const updatedNotes = notes.filter((note) => note.id !== id);
       setNotes(updatedNotes);
       localStorage.setItem("notes", JSON.stringify(updatedNotes));
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getAllNotes();
-      setNotes(data);
-    };
-    fetchData();
-  }, [notes]);
+  const handleDeleteLocalNote = (id) => {
+    try {
+      const updatedNotes = notes.filter((note) => note.id !== id);
+      setNotes(updatedNotes);
+      localStorage.setItem("notes", JSON.stringify(updatedNotes));
+    } catch (error) {
+      console.error("Failed to delete note locally:", error);
+      // Tambahkan penanganan error sesuai kebutuhan
+    }
+  };
 
   return (
     <div className="container">
-      <div className="language-buttons">
-        <button onClick={() => handleChangeLanguage("en")}>English</button>
-        <button onClick={() => handleChangeLanguage("id")}>Indonesian</button>
-        <p>
-          {language === "en"
-            ? "Current language: English"
-            : "Bahasa saat ini: Indonesia"}
-        </p>
-      </div>
+      <button onClick={() => handleChangeLanguage("en")}>English</button>
+      <button onClick={() => handleChangeLanguage("id")}>Indonesian</button>
+      <p>
+        {language === "en"
+          ? "Current language: English"
+          : "Bahasa saat ini: Indonesia"}
+      </p>
       <div>
         <button onClick={handleLogout}>
           {language === "en" ? "Logout" : "Keluar"}
         </button>
       </div>
-      <h2>{language === "en" ? "Add New Note:" : "Tambah Catatan Baru:"}</h2>
-      <div className="note-form">
+      <div className="header">
         <input
           type="text"
-          placeholder={language === "en" ? "Title" : "Judul"}
-          value={newNote.title}
-          onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
+          className="search-container"
+          placeholder={language === "en" ? "Search Notes" : "Cari Catatan"}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <textarea
-          placeholder={language === "en" ? "Body" : "Isi"}
-          value={newNote.body}
-          onChange={(e) => setNewNote({ ...newNote, body: e.target.value })}
-        />
-        <button onClick={handleAddNote}>
-          {language === "en" ? "Add Note" : "Tambah Catatan"}
-        </button>
       </div>
+      <h2>{language === "en" ? "Add New Note:" : "Tambah Catatan Baru:"}</h2>
+      <input
+        type="text"
+        placeholder={language === "en" ? "Title" : "Judul"}
+        value={newNote.title}
+        onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
+      />
+      <textarea
+        placeholder={language === "en" ? "Body" : "Isi"}
+        value={newNote.body}
+        onChange={(e) => setNewNote({ ...newNote, body: e.target.value })}
+      />
+      <button onClick={handleAddNote}>
+        {language === "en" ? "Add Note" : "Tambah Catatan"}
+      </button>
       <h2>{language === "en" ? "Notes:" : "Catatan:"}</h2>
-      <ul className="notes-list">
-        {notes.map((note) => (
-          <li key={note.id} className="note-item">
-            <h3>{note.title}</h3>
-            <p>{note.body}</p>
-            <p>
-              {language === "en" ? "Created At:" : "Dibuat Pada:"}{" "}
-              {note.createdAt}
-            </p>
-            <p>
-              {language === "en" ? "Archived:" : "Arsip:"}{" "}
-              {note.archived ? "Yes" : "No"}
-            </p>
-            <button onClick={() => handleArchiveNote(note.id)}>
-              {language === "en" ? "Archive" : "Arsipkan"}
-            </button>
-            <button onClick={() => handleDeleteNote(note.id)}>
-              {language === "en" ? "Delete" : "Hapus"}
-            </button>
-          </li>
-        ))}
-      </ul>
+      {filteredNotes.length > 0 ? (
+        <ul>
+          {filteredNotes.map((note) => (
+            <li key={note.id}>
+              <h3>{note.title}</h3>
+              <p>{note.body}</p>
+              <p>
+                {language === "en" ? "Created At:" : "Dibuat Pada:"}{" "}
+                {note.createdAt}
+              </p>
+              <p>
+                {language === "en" ? "Archived:" : "Arsip:"}{" "}
+                {note.archived ? "Yes" : "No"}
+              </p>
+              <button
+                className="archive-button"
+                onClick={() => handleArchiveNote(note.id)}
+              >
+                {language === "en" ? "Archive" : "Arsipkan"}
+              </button>
+              <button
+                className="delete-button"
+                onClick={() => {
+                  handleDeleteNote(note.id, note.fromApi);
+                  if (!note.fromApi) {
+                    handleDeleteLocalNote(note.id);
+                  }
+                }}
+              >
+                {language === "en" ? "Delete" : "Hapus"}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center font-large">Data tidak ada</p>
+      )}
     </div>
   );
 };

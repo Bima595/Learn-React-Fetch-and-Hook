@@ -1,61 +1,83 @@
-/* Di dalam file style.css */
-.homepage-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .language-buttons {
-    margin-bottom: 20px;
-  }
-  
-  .language-buttons button {
-    margin-right: 10px;
-    padding: 5px 10px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  
-  .note-form {
-    margin-bottom: 20px;
-  }
-  
-  .note-form input,
-  .note-form textarea {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 8px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .note-form button {
-    padding: 8px 12px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .notes-list {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .note-item {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .note-item h3 {
-    margin-top: 0;
-  }
-  
-  .note-item button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  
+/* Style.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h2 {
+  margin-top: 30px;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+p {
+  margin: 5px 0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-large {
+  font-size: 24px;
+}
+
+.archive-button {
+  background-color: #28a745;
+}
+
+.archive-button:hover {
+  background-color: #218838;
+}
+
+.delete-button {
+  background-color: #dc3545;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.search-container {
+  margin-top: 30px;
+}

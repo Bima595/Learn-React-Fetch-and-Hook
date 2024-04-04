@@ -68,20 +68,19 @@ async function getUserLogged() {
 }
 
 async function addNote({ title, body }) {
-  const response = await fetchWithToken(`${BASE_URL}/notes`, {
+  const accessToken = getAccessToken();
+  const response = await fetch(`${BASE_URL}/notes`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({ title, body }),
   });
-
   const responseJson = await response.json();
-
   if (responseJson.status !== "success") {
     return { error: true, data: null };
   }
-
   return { error: false, data: responseJson.data };
 }
 
