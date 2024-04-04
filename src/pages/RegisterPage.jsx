@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { register } from "../utils/network-data";
 import PropTypes from 'prop-types';
+import "../style/RegisterPage.css";
 
 const RegisterPage = ({ setCurrentPage }) => {
   // State untuk menyimpan data registrasi
@@ -25,39 +26,44 @@ const RegisterPage = ({ setCurrentPage }) => {
   };
 
   return (
-    <div>
-      <h1>Register</h1>
-      <form onSubmit={handleRegister}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Register</button>
-        {error && <p>{error}</p>}
-      </form>
-      <p>
-        Sudah punya akun?{" "}
-        <a href="#" onClick={() => setCurrentPage("login")}>
-          Login disini
-        </a>
-      </p>
+    <div className="register-container">
+      <div className="register-form">
+        <h1>Register</h1>
+        <form onSubmit={handleRegister}>
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="input-field"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input-field"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input-field"
+          />
+          <button type="submit" className="register-button">Register</button>
+          {error && <p className="error-message">{error}</p>}
+        </form>
+        <p>
+          Sudah punya akun?{" "}
+          <a href="#" onClick={() => setCurrentPage("login")} className="login-link">
+            Login disini
+          </a>
+        </p>
+      </div>
     </div>
   );
-};
+}  
 
 RegisterPage.propTypes = {
     setCurrentPage: PropTypes.func.isRequired,

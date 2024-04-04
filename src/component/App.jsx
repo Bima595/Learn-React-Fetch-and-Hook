@@ -1,8 +1,8 @@
-// eslint-disable-next-line no-unused-vars
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import HomePage from "../pages/HomePage";
+import { getUserLogged, getAccessToken } from "../utils/network-data";
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState("login");
@@ -11,9 +11,22 @@ const App = () => {
   const handleLogout = () => {
     setCurrentPage('login');
     setUserName('');
+    localStorage.removeItem('accessToken');
   };
 
-  
+  useEffect(() => {
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      getUserLogged().then((response) => {
+        if (!response.error) {
+          setUserName(response.data.name);
+          setCurrentPage('homepage');
+        } else {
+          localStorage.removeItem('accessToken');
+        }
+      });
+    }
+  }, []); // Run only once when the component mounts
 
   return (
     <div>
